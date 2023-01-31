@@ -2,27 +2,24 @@ from ortools.linear_solver import pywraplp
 from math import floor
 import numpy as np
 
-def create_data_model():
+def create_data_model(path='test.txt'):
     """Create the data for the example."""
-    data = {}
-    min_num = np.random.randint(low=20, high=50, size=12)
-    cost = np.random.uniform(low=20, high=60, size=(12,))
-    total_cost = 6000
-    area_cost = np.random.uniform(low=20, high=60, size=(12,))
-    area = 10000
-    profit = np.random.uniform(low=100, high=200, size=(12,))
-    num_prod = len(cost)
-
-    upper_bound = [floor(min([total_cost/cost[i], area/area_cost[i]])) for i in range(num_prod)]
-
-    data['min_num'] = min_num
-    data['cost'] = cost
-    data['total_cost'] = total_cost
-    data['area_cost'] = area_cost
-    data['area'] = area
-    data['upper_bound'] = upper_bound
-    data['profit'] = profit
-    data['num_prod'] = num_prod
+    with open(path, "r") as file:
+            # read the file line by line
+        lines = file.readlines()
+        # convert each line to integer and append to the list
+    
+        read_file= [[int(i)for i in line.strip().split(' ')] for line in lines]
+    read_file=np.array(read_file)
+    data={}
+    data['min_num'] = read_file[4]
+    data['cost'] = read_file[1]
+    data['total_cost'] = read_file[0][2]
+    data['area_cost'] = read_file[2]
+    data['area'] = read_file[0][1]
+    data['upper_bound'] = [read_file[0][1]/i for i in read_file[1]]
+    data['profit'] = read_file[3]
+    data['num_prod'] = read_file[0][0]
 
     return data
 

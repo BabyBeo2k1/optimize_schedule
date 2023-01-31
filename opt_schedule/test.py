@@ -1,7 +1,8 @@
-import graph
-import solve
-n= 10
-gen=graph(n)
-graph.gen(69)
-solution=solve()
-solution.sortest_distinct(10)
+def test():
+    s="alo"
+    def testsub():
+        global s
+        s="blo"
+    testsub()
+    print(s)
+test()

@@ -1,7 +1,8 @@
 import numpy as np
+import time
 conditions=np.loadtxt('test.txt', delimiter=' ').T
-A=10e3*4
-C=10e3*4
+A=10e5
+C=10e3
 c= conditions[0]
 a=conditions[1]
 f=conditions[2]
@@ -13,6 +14,7 @@ def check_constrain(inputs):
     if cost>C or area>A:
         return False
     return True
+
 def solve(inputs):
     global profit
     if not check_constrain(inputs):
@@ -20,9 +22,15 @@ def solve(inputs):
     cur=np.sum((inputs*(inputs>=m))*f)
     if profit > cur:
         cur=profit
+    start=time.time()
+
     for i in range(len(inputs)):
         inputs[i]+=1
+        end=time.time()
+        if end-start>300:
+            return profit
         profit=max(cur,solve(inputs))
+
         inputs[i]-=1
     return profit
 x=np.zeros_like(c)+4
