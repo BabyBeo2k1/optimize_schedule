@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 def load_data(path='test3.txt'):
     with open(path, "r") as file:
             # read the file line by line
@@ -29,7 +30,7 @@ def greedy_production_planning(N, c, a, f, m, A, C):
     
     res=[]
     res_p=[]
-    for k in range(N):
+    for k in tqdm(range(N)):
 
         remaining_area = A
         cost = 0
