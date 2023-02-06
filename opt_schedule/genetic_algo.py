@@ -62,7 +62,8 @@ def crossover(parents, offspring_size):
     offspring = []
     for i in range(offspring_size):
         parent1, parent2 = random.sample(parents, 2)
-        offspring.append(np.hstack((parent1[:len(parent1)//2], parent2[len(parent2)//2:])))
+        cut_point = random.randint(0, len(parent1)-1)
+        offspring.append(np.hstack((parent1[:cut_point], parent2[cut_point:])))
     #return offspring
     filtered_offspring = [x for x in offspring if check_constrain(x)] 
     return filtered_offspring
