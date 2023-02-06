@@ -3,7 +3,7 @@ import time
 from tqdm import tqdm
 import random
 
-def load_data(path='test.txt'):
+def load_data(path='test3.txt'):
     with open(path, "r") as file:
             # read the file line by line
         lines = file.readlines()
@@ -28,7 +28,7 @@ def check_constrain(inputs):
         return False
     return True
 
-
+eval=[]
 def generate_population(pop_size, chrom_len):
     # generate a population of pop_size individuals, each with a chromosome of length chrom_len
     x=[]
@@ -89,6 +89,8 @@ def genetic_algorithm(c, a, m, p, C, A, pop_size, chrom_len, num_parents, offspr
         offspring = crossover(parents, offspring_size)
         offspring = mutation(offspring, mutation_prob)
         population = parents + offspring
+        if i%100==0:
+            eval.append(np.sum(population[(np.argmax(fitness_vals))]*f))
     return population[np.argmax(fitness_vals)]
 
 # Example usage
@@ -99,8 +101,12 @@ chrom_len = N
 num_parents = 100
 offspring_size = 100
 mutation_prob = 0.2
-num_generations = 10000
-
+num_generations = 1000
+import matplotlib.pyplot as plt
+x=np.arange(0,num_generations/100,dtype=int)
 
 best_chromosome = genetic_algorithm(c, a, m, f, C, A, pop_size, chrom_len, num_parents,offspring_size,mutation_prob,num_generations)
+plt.plot(x,eval)
+
 print(best_chromosome,(np.sum(best_chromosome*f)))
+#plt.show()
