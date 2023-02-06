@@ -1,5 +1,8 @@
 import numpy as np
 import time
+from tqdm import tqdm
+import random
+
 def load_data(path='test.txt'):
     with open(path, "r") as file:
             # read the file line by line
@@ -15,15 +18,15 @@ def load_data(path='test.txt'):
     f=conditions[3]
     m=conditions[4]
     return N,A,C,c,a,f,m
-N,A,C,c,a,f,m=load_data()
+
 
 def check_constrain(inputs):
     cost=np.sum(inputs*(inputs>=m)*c)
     area=np.sum((inputs*(inputs>=m))*a)
+    
     if cost>C or area>A:
         return False
     return True
-import random
 
 
 def generate_population(pop_size, chrom_len):
@@ -38,13 +41,14 @@ def generate_population(pop_size, chrom_len):
         
     return x
 
+
 def calculate_fitness(chromosome, c, a, m, p, C, A):
     # calculate the fitness value of a chromosome
     x = chromosome 
     cost = np.dot(x, c)
     area = np.dot(x, a)
     profit = np.dot(x, p)
-    if cost > C or area > A or any(x < m):
+    if cost > C or area > A or np.any((x > 0) & (x < m)):
         return -1
     return profit
 
@@ -59,23 +63,28 @@ def crossover(parents, offspring_size):
     for i in range(offspring_size):
         parent1, parent2 = random.sample(parents, 2)
         offspring.append(np.hstack((parent1[:len(parent1)//2], parent2[len(parent2)//2:])))
-    return offspring
+    #return offspring
+    filtered_offspring = [x for x in offspring if check_constrain(x)] 
+    return filtered_offspring
 
 def mutation(offspring, mutation_prob):
     # mutate the offspring with probability mutation_prob
     for i in range(len(offspring)):
         for j in range(len(offspring[i])):
             if random.random() < mutation_prob:
-                offspring[i][j]+= random.randint(-1,5)
+                offspring[i][j]+= random.randint(-max_m, max_m)
                 offspring[i][j]=offspring[i][j]*(offspring[i][j]>=m[j])
-    return offspring
+    #return offspring
+    filtered_offspring = [x for x in offspring if check_constrain(x)] 
+    return filtered_offspring
 
 def genetic_algorithm(c, a, m, p, C, A, pop_size, chrom_len, num_parents, offspring_size, mutation_prob, num_generations):
     # main function to run the genetic algorithm
     population = generate_population(pop_size, chrom_len)
-    print(population[:5])
-    for i in range(num_generations):
+    #print(population[:5])
+    for i in tqdm(range(num_generations)):
         fitness_vals = [calculate_fitness(chrom, c, a, m, p, C, A) for chrom in population]
+        #print("Gen: ", i, ": ", np.max(fitness_vals))
         parents = select_parents(population, fitness_vals, num_parents)
         offspring = crossover(parents, offspring_size)
         offspring = mutation(offspring, mutation_prob)
@@ -83,9 +92,10 @@ def genetic_algorithm(c, a, m, p, C, A, pop_size, chrom_len, num_parents, offspr
     return population[np.argmax(fitness_vals)]
 
 # Example usage
-
-pop_size = 50
-chrom_len = 5
+N,A,C,c,a,f,m=load_data()
+max_m = np.max(m)
+pop_size = 1000
+chrom_len = N
 num_parents = 100
 offspring_size = 100
 mutation_prob = 0.2
