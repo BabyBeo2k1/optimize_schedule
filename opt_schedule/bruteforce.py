@@ -1,11 +1,11 @@
 import numpy as np
 import time
-def load_data(path='test3.txt'):
+def load_data(path='./testcase/3.txt'):
     with open(path, "r") as file:
             # read the file line by line
         lines = file.readlines()
         # convert each line to integer and append to the list
-        conditions= [[int(i)for i in line.strip().split(' ')] for line in lines]
+        conditions= [[int(i)for i in line.strip().split(' ')] for line in lines if len(line.strip())>0]
 
     N=conditions[0][0]
     A=conditions[0][1]
@@ -24,16 +24,17 @@ def check_constrain(inputs):
         return False
     return True
 eval=[]
-def solve(inputs):
+def solve(inputs,init_time):
     global profit
     global iter,res_x
-    iter+=1
+    time_constrain=time.time()
     cur=np.sum(inputs*f)
+    
     if profit<cur:
         profit=cur
         res_x=inputs
     eval.append(profit)
-    if iter>10000:
+    if time.time()-init_time>10:
         return
     for i in range(len(inputs)):
         
@@ -43,24 +44,53 @@ def solve(inputs):
             inputs[i]+=1
         if check_constrain(inputs):
             
-            solve(inputs)
+            solve(inputs,init_time)
             
         if inputs[i]==m[i]:
             inputs[i]=0
         else:
             inputs[i]-=1
     return 
-profit =0
+profit=0
+res_x=[]
 iter=0
-x=np.zeros_like(c)
-#print(solve(x))
-test=np.sum((x*(x>=m))*f)
-res_x=np.zeros_like(x)
-i=solve(x)
+import time
+import matplotlib.pyplot as plt
+import os
+files=(os.listdir('./testcase'))
+list_testcase=[file for file in files[:20] if file.endswith('txt')]
+pivot=[]
+res=[]
+time_stream=[]
+testcases=[]
+
+for testcase in list_testcase:
+    
+    target='testcase/'+testcase
+    N,A,C,c,a,f,m=load_data(target)
+    profit =0
+    
+    x=np.zeros_like(c)
+    #print(solve(x))
+    res_x=np.zeros_like(x)
+    init=time.time()
+    testcases.append(testcase)
+    
+    
+    solve(x)
+    timecost=time.time()-init
+    time_stream.append(timecost)
+    
+    pivot.append(N)
+    res.append(profit)
+    with open('bruteforcetest.txt','a+') as f:
+        print("writing testcase"+testcase)
+        base,_=os.path.splitext(testcase)
+        s=base +'\t'+str(N)+'\t'+str(profit)+'\t'+str(timecost)+'\n'
+        f.writelines(s)
 
 print(profit)
 print(res_x)
-print(iter)
 num=np.arange(iter)
 import matplotlib.pyplot as plt
 plt.plot(num,eval)
