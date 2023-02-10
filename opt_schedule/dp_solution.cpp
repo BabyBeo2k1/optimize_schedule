@@ -1,4 +1,4 @@
-#include    <bits/stdc++.h>
+#include<bits/stdc++.h>
 #pragma comment(linker, "/STACK:268435456")
 #define __unique(V) (V).resize(unique((V).begin(),(V).end())-(V).begin())
 #define cntbit(X)   __builtin_popcount((X))
