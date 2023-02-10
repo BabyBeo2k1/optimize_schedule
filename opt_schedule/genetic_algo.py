@@ -2,12 +2,13 @@ import numpy as np
 import time
 from tqdm import tqdm
 import random
-
+import os
 def load_data(path='test3.txt'):
     with open(path, "r") as file:
             # read the file line by line
         lines = file.readlines()
         # convert each line to integer and append to the list
+
         conditions= [[int(i)for i in line.strip().split(' ')] for line in lines]
 
     N=conditions[0][0]
@@ -93,21 +94,34 @@ def genetic_algorithm(c, a, m, p, C, A, pop_size, chrom_len, num_parents, offspr
         if i%100==0:
             eval.append(np.sum(population[(np.argmax(fitness_vals))]*f))
     return population[np.argmax(fitness_vals)]
-
+files=(os.listdir('./testcase'))
+list_testcase=[file for file in files if file.endswith('txt')]
+pivot=[]
+res=[]
+time_stream=[]
+for testcase in list_testcase:
+    base,ext=os.path.splitext('./testcase/'+testcase)
+    if not base.endswith('0'):
+        continue
+    init=time.time()
+    N,A,C,c,a,f,m=load_data('./testcase/'+testcase)
+    pop_size = 1000
+    chrom_len = N
+    num_parents = 100
+    offspring_size = 100
+    mutation_prob = 0.2
+    num_generations = 1000
+    
+    best_chromosome = genetic_algorithm(c, a, m, f, C, A, pop_size, chrom_len, num_parents,offspring_size,mutation_prob,num_generations)
+    time.append(time.time()-init)
+    res.append(best_chromosome)
+    pivot.append(N)
 # Example usage
-N,A,C,c,a,f,m=load_data()
-max_m = np.max(m)
-pop_size = 1000
-chrom_len = N
-num_parents = 100
-offspring_size = 100
-mutation_prob = 0.2
-num_generations = 1000
 import matplotlib.pyplot as plt
 x=np.arange(0,num_generations/100,dtype=int)
 
-best_chromosome = genetic_algorithm(c, a, m, f, C, A, pop_size, chrom_len, num_parents,offspring_size,mutation_prob,num_generations)
-plt.plot(x,eval)
+plt.plot(x,time)
+plt.plot(x,res)
 
 print(best_chromosome,(np.sum(best_chromosome*f)))
 #plt.show()

@@ -30,6 +30,7 @@ def solve(inputs):
     global tclock,tle
     
     cur=np.sum(inputs*f)
+    
     if profit<cur:
         profit=cur
         res_x=inputs
@@ -45,45 +46,20 @@ def solve(inputs):
             inputs[i]+=1
         if check_constrain(inputs):
             
-            solve(inputs)
+            solve(inputs,init_time)
             
         if inputs[i]==m[i]:
             inputs[i]=0
         else:
             inputs[i]-=1
     return 
-def record():
-    global profit, file,tle,tclock
-    with open('bruteforce_result.txt','a+') as f:
-        base,_=os.path.splitext(file)
-        note=str(base)+'\t'+ str(profit) +'\t'
-        if tle:
-            note+="tle"
-        else:
-            note+=str(time.time()-tclock)
-        f.writelines(note+'\n')
-
-
-
-
+profit =0
+iter=0
+x=np.zeros_like(c)
 #print(solve(x))
-
-
-
-eval=[]
-"""import matplotlib.pyplot as plt
-fig, ax1 = plt.subplots()
-
-ax2 = ax1.twinx()
-ax1.plot(num, eval, 'g-')
-ax2.plot(num, time_stream, 'b-')
-
-ax1.set_xlabel('X data')
-ax1.set_ylabel('best profit', color='g')
-ax2.set_ylabel('time', color='b')
-
-
-plt.show()"""
+test=np.sum((x*(x>=m))*f)
+res_x=np.zeros_like(x)
+i=solve(x)
 
 #read all files
 for file in sorted(os.listdir('testcase for Truong')):

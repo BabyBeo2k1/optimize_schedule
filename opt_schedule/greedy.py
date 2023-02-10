@@ -28,9 +28,9 @@ def check_constrain(inputs):
 
 def greedy_production_planning(N, c, a, f, m, A, C):
    
-    init_time=time.time()
-    tle=False
-    res=0
+    
+    res=[]
+    res_p=[]
     for k in tqdm(range(N)):
 
         remaining_area = A
@@ -39,6 +39,8 @@ def greedy_production_planning(N, c, a, f, m, A, C):
         x=np.zeros(N)
         for j in range(N):
             i=(k+j)%N
+            if time.time()-timeconstrain>30:
+                return res,res_p
             if cost + c[i]*m[i] <= C and a[i]*m[i] <= remaining_area:
                 x[i] = m[i]
                 cost += c[i] * x[i]
