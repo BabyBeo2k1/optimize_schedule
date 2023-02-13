@@ -1,7 +1,6 @@
 import numpy as np
 import time
-import os
-def load_data(path='test3.txt'):
+def load_data(path='./testcase\ for\ Truong/3.txt'):
     with open(path, "r") as file:
             # read the file line by line
         lines = file.readlines()
@@ -19,56 +18,91 @@ def load_data(path='test3.txt'):
 
 
 def check_constrain(inputs):
+    global c,A,C,a
     cost=np.sum(inputs*c)
     area=np.sum(inputs*a)
     if cost>C or area>A:
         return False
     return True
 
-def solve(inputs):
+def solve(inputs,i):
     global profit
-    global tclock,tle
+    global amin,cmin,mmin,fmax,N,A,C,c,f,m,a
     
     cur=np.sum(inputs*f)
     
+    if not check_constrain(inputs):
+        return
+    
+    xh=min(int((A-np.sum(inputs*a))/amin[i]),int((C-np.sum(inputs*c))/cmin[i]))
+    cut_heuristic=xh*(xh>=mmin[i])*fmax[i]+cur
+    
+    if cut_heuristic< profit:
+        return
     if profit<cur:
         profit=cur
-        res_x=inputs
-    #eval.append(profit)
-    if time.time()-tclock>300:
-        tle=True
-        return
-    for i in range(len(inputs)):
         
-        if inputs[i]==0:
-            inputs[i]=m[i]
+    if time.time()-init>300:
+        return
+    for k in range(i,len(inputs)):
+        
+        if inputs[k]==0:
+            inputs[k]=m[k]
         else:
-            inputs[i]+=1
-        if check_constrain(inputs):
+            inputs[k]+=1
+        
+        
+        solve(inputs,k)
             
-            solve(inputs,init_time)
-            
-        if inputs[i]==m[i]:
-            inputs[i]=0
+        if inputs[k]==m[k]:
+            inputs[k]=0
         else:
-            inputs[i]-=1
+            inputs[k]-=1
     return 
-profit =0
+profit=0
+res_x=[]
 iter=0
-x=np.zeros_like(c)
-#print(solve(x))
-test=np.sum((x*(x>=m))*f)
-res_x=np.zeros_like(x)
-i=solve(x)
+import time
+import matplotlib.pyplot as plt
+import os
+""
+files=sorted(os.listdir('./testcase for Truong'))
+list_testcase=[file for file in files if file.endswith('txt')]
+pivot=[]
+res=[]
+time_stream=[]
+testcases=[]
 
-#read all files
-for file in sorted(os.listdir('testcase for Truong')):
-    if file.endswith('txt'):
-        profit =0
-        tle=False
-        N,A,C,c,a,f,m=load_data('testcase for Truong/'+file)
-        tclock=time.time()
-        init_input=np.zeros_like(c)
-        solve(init_input)
-        record()
-        continue
+for testcase in list_testcase:
+    
+    target='testcase for Truong/'+testcase
+    N,A,C,c,a,f,m=load_data(target)
+    init=time.time()
+    x=np.zeros_like(c)
+    f=np.array(f)
+    c=np.array(c)
+    a=np.array(a)
+    m=np.array(m)
+    amin=np.zeros_like(c)
+    cmin=np.zeros_like(c)
+    mmin=np.zeros_like(c)
+    fmax=np.zeros_like(c)
+    amin[-1]=a[-1]
+    cmin[-1]=c[-1]
+    mmin[-1]=m[-1]
+    fmax[-1]=f[-1]
+    for i in range(2,len(c)+1):
+        amin[-i]=min(a[-i],amin[-i+1])
+        fmax[-i]=max(f[-i],fmax[-i+1])
+        mmin[-i]=min(m[-i],mmin[-i+1])
+        cmin[-i]=min(c[-i],cmin[-i+1])
+    print(amin)
+    profit =0
+    solve(x,0)
+    timecost=time.time()-init
+    
+    with open('bruteforcetest.txt','a+') as f:
+        print("writing testcase"+testcase)
+        base,_=os.path.splitext(testcase)
+        s=base +'\t'+str(N)+'\t'+str(profit)+'\t'+str(timecost)+'\n'
+        f.writelines(s)
